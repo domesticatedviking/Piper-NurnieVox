@@ -21,4 +21,6 @@ htmlcov
 .venv/
 lightning_logs/
 src/python/dist/*
+src/python_run/.NURNIEVOX_DIR
+
 
