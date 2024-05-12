@@ -4,8 +4,7 @@
 echo "**********************************"
 echo "start_tts_server.sh is now running"
 echo "**********************************" 
-VOICEDIR=""
-PATH_TO_ONNX="/home/erik/code/installer_nurnie/NurnieVox/piper_voices/optimus2309/optimus.onnx"
+VOICEDIR="./VOICE_LINKS"
 
 # Get the directory where this script is located
 SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
@@ -43,7 +42,28 @@ if [ -z "$NURNIEVOX_DIR" ]; then
 fi
 
 echo "Got NURNIEVOX_DIR: $NURNIEVOX_DIR"
+DEFAULT_VOICE_LOCATION="${NURNIEVOX_DIR}/.SERVER_TTS_VOICE"
+echo "DEFAULT_VOICE_LOCATION  = ${DEFAULT_VOICE_LOCATION}"
+
+DEFAULT_VOICE_PATH=$(<$DEFAULT_VOICE_LOCATION)
+
+#if [ -n "$DEFAULT_VOICE_LOCATION" ]; then#
+#  echo "no default voice provided in ${NURNIEVOX_DIR}/.SERVER_TTS_VOICE"
+#  echo "please put a path to a default ONNX file in there"
+#fi
+
+echo "creating symbolic link to voice file."
+echo "simulating symlink command ln -s ${DEFAULT_VOICE_PATH} $VOICEDIR/voice.onnx"
+echo "simulating symlink command ln -s ${DEFAULT_VOICE_PATH}.json $VOICEDIR/voice.onnx.json"
+ONNX_PATH=$VOICEDIR/voice.onnx
+ONNX_JSON_PATH=$VOICEDIR/voice.onnx.json
+rm $ONNX_PATH
+rm $ONNX_JSON_PATH
+
+ln -s ${DEFAULT_VOICE_PATH} $ONNX_PATH
+ln -s ${DEFAULT_VOICE_PATH}.json $ONNX_JSON_PATH
 echo "STARTING TTS SERVER in $SCRIPT_DIR"
+
 
 
 # Write VOICEDIR to a hidden file if provided
@@ -53,16 +73,16 @@ fi
 
 
 # Path to the ONNX model (absolute path)
-if [ -f "$PATH_TO_ONNX" ]; then
+if [ -f "$ONNX_PATH" ]; then
   # Run the Python command with the module and specified model
   echo "About to run script: SCRIPT_DIR =   ${SCRIPT_DIR}"
   cd "$SCRIPT_DIR"
-  python -m piper.http_server --model "${PATH_TO_ONNX}" &
+  python -m piper.http_server --model "${ONNX_PATH}" &
   PID=$!
   echo "PID of TTS server is: ${PID}"
   echo ${PID} > "$PID_FILE" # saves it in case another process needs it
 else
-  echo "Error: ONNX model not found at $PATH_TO_ONNX!"
+  echo "Error: ONNX model not found at ${ONNX_PATH} !"
   exit 1
 fi
 

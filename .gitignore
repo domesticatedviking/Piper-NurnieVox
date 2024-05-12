@@ -22,5 +22,6 @@ htmlcov
 lightning_logs/
 src/python/dist/*
 src/python_run/.NURNIEVOX_DIR
-
+src/python_run/VOICE_LINKS/*.onnx
+src/python_run/VOICE_LINKS/*.json
 
